@@ -43,7 +43,7 @@ Black Pawn7 -   (6,7)		White Pawn7 -   (1,7)
 
 Pseudocode for piece
 
-int possibleMove;
+List<ChessMove> possibleMoves;
 RookMovesCalculator(position, color, board)
 {
 directions = [(1,0), (0,1), (-1,0), (0,-1)];
@@ -51,7 +51,6 @@ for (const [rowDir, colDir] of directions)
 {
 let currentRow = position.row + rowDir;
 let currentCol = position.col + colDir;
-
         	while (currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7) 
 		{ 
                 	if (board[currentRow][currentCol] != empty) 
@@ -68,57 +67,118 @@ let currentCol = position.col + colDir;
 		} 
     }
 }
-KnightMovesCalculator()
+KnightMovesCalculator(position, color, board)
+{
+        directions = [(2,1),(1,2),(2,-1),(1,-2),(-1,2),(-2,1),(-1,-2),(-2,-1)]
+        for (const [rowDir, colDir] of directions)
+        {       
+                let currentRow = position.row + rowDir;
+                let currentCol = position.col + colDir;
+                if(currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7)
+                {
+                        if (board[currentRow][currentCol] != friendly)
+                        {
+                                add possibleMove;
+                        }
+                }
+        }
+}
 BishopMovesCalculator(position, color, board)
 {
-directions = [(1,1), (1,-1), (-1,1), (-1,-1)];
-for (const [rowDir, colDir] of directions)
-{
-let currentRow = position.row + rowDir;
-let currentCol = position.col + colDir;
-
-        	while (currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7) 
-		{ 
-                	if (board[currentRow][currentCol] != empty) 
-	    		{
-                		if (board[currentRow][currentCol] == enemy) 
-				{
-                    		add possibleMove;
-                		}
+        directions = [(1,1), (1,-1), (-1,1), (-1,-1)];
+        for (const [rowDir, colDir] of directions)
+        {
+                let currentRow = position.row + rowDir;
+                let currentCol = position.col + colDir;
+                while (currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7) 
+		        { 
+                        if (board[currentRow][currentCol] != empty) 
+	    		        {
+                		        if (board[currentRow][currentCol] == enemy) 
+				                {
+                    		            add possibleMove;
+                		        }
                 	break; // Cut off route
            		}
           	add possibleMove;
-            	currentRow += rowDir; 
-            	currentCol += colDir;
+                currentRow += rowDir; 
+                currentCol += colDir;
 		} 
     }
 }
-QueenMovesCalculator()
-KingMovesCalculator()
+QueenMovesCalculator(position, color, board)
+{
+        directions = [(1,1), (1,-1), (-1,1), (-1,-1),(0,1),(1,0),(-1,0),(0,-1)];
+        for (const [rowDir, colDir] of directions)
+        {
+                let currentRow = position.row + rowDir;
+                let currentCol = position.col + colDir;
+                while (currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7) 
+		        { 
+                        if (board[currentRow][currentCol] != empty) 
+	    		        {
+                		        if (board[currentRow][currentCol] == enemy) 
+				                {
+                    		            add possibleMove;
+                		        }
+                	    break; // Cut off route
+           		        }
+          	    add possibleMove;
+            	currentRow += rowDir; 
+            	currentCol += colDir; 
+                } 
+        }
+}
+KingMovesCalculator(position, color, board)
+{
+        directions = [(1,1), (1,-1), (-1,1), (-1,-1),(0,1),(1,0),(-1,0),(0,-1)];
+        for (const [rowDir, colDir] of directions)
+        {
+                let currentRow = position.row + rowDir;
+                let currentCol = position.col + colDir;
+                if(currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7)
+                {
+                        if (board[currentRow][currentCol] != friendly)
+                        {
+                                if (!check((currentRow, currentCol), color, board))
+                                {
+                                        add possibleMove;
+                                }
+                        }
+                }
+        }
+}
+
 PawnMovesCalculator(position, color, board);
 {
-if (color == white)
-{
-forward = (1,0);
-capture = [(1,1),(1,-1)];
-}
-else
-{
-forward = (-1,0);
-capture = [(-1,-1), (-1,1)];
-}
-if (board[position + forward] == empty) //Any turn
-{
-add move;
-if ((color == white && row.position == 1) || (color == black && row.position == 6) && board[position + 2 * forward] == empty) //FIRST TURN
-{
-add possibleMove;
-}
-for each direction in capture
-{
-if (board[position + capture] == opposite)
-{
-add possibleMove;
-}
-}
+        if (color == white)
+        {
+                forward = (1,0);
+                capture = [(1,1),(1,-1)];
+        }
+        else
+        {
+                forward = (-1,0);
+                capture = [(-1,-1), (-1,1)];
+        }
+        if (board[position + forward] == empty) //Any turn
+        {
+                add move;
+                if (((color == white && row.position == 1) || (color == black && row.position == 6)) && board[position + 2 * forward] == empty) //FIRST TURN
+                {
+                        add possibleMove;
+                }
+        }
+        for (const [rowDir, colDir] of capture)
+        {
+                let currentRow = position.row + rowDir;
+                let currentCol = position.col + colDir;
+                if (currentRow >= 0 && currentRow <= 7 && currentCol >= 0 && currentCol <= 7)
+                {
+                        if (board[currentRow][currentCol] == opposite)
+                        {
+                                add possibleMove;
+                        }
+                }
+        }
 }
