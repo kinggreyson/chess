@@ -58,7 +58,7 @@ public class ChessPiece {
             Moves = new RookMovesCalculator();
        }
         if (type == PieceType.KNIGHT){
-            Moves = new RookMovesCalculator();
+            Moves = new KnightMovesCalculator();
         }
         if (type == PieceType.BISHOP){
             Moves = new BishopMovesCalculator();
