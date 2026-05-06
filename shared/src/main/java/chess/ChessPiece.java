@@ -67,12 +67,12 @@ public class ChessPiece {
             Moves = new QueenMovesCalculator();
         }
         if (type == PieceType.KING){
-            Moves = new RookMovesCalculator();
+            Moves = new KingMovesCalculator();
         }
-        /*else
+        else
         {
             Moves = new PawnMovesCalculator();
-        }*/
+        }
         return Moves.pieceMoves(board, myPosition);
     }
 }
