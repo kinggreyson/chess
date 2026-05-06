@@ -53,10 +53,26 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-       ChessPiece piece = board.getPiece(myPosition);
-       if (piece.getPieceType() == PieceType.BISHOP){
-           return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1,8), null));
+       PieceMovesCalculator Moves = null;
+       if (type == PieceType.ROOK){
+            Moves = new RookMovesCalculator();
        }
-        return List.of();
+        if (type == PieceType.KNIGHT){
+            Moves = new RookMovesCalculator();
+        }
+        if (type == PieceType.BISHOP){
+            Moves = new RookMovesCalculator();
+        }
+        if (type == PieceType.QUEEN){
+            Moves = new RookMovesCalculator();
+        }
+        if (type == PieceType.KING){
+            Moves = new RookMovesCalculator();
+        }
+        /*else
+        {
+            Moves = new PawnMovesCalculator();
+        }*/
+        return Moves.pieceMoves(board, myPosition);
     }
 }
