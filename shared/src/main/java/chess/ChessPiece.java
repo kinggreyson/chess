@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -13,6 +14,20 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -54,19 +69,19 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
        PieceMovesCalculator Moves = null;
-       if (type == PieceType.ROOK){
+        if (type == PieceType.ROOK){
             Moves = new RookMovesCalculator();
-       }
-        if (type == PieceType.KNIGHT){
+        }
+        else if (type == PieceType.KNIGHT){
             Moves = new KnightMovesCalculator();
         }
-        if (type == PieceType.BISHOP){
+        else if (type == PieceType.BISHOP){
             Moves = new BishopMovesCalculator();
         }
-        if (type == PieceType.QUEEN){
+        else if (type == PieceType.QUEEN){
             Moves = new QueenMovesCalculator();
         }
-        if (type == PieceType.KING){
+        else if (type == PieceType.KING){
             Moves = new KingMovesCalculator();
         }
         else
