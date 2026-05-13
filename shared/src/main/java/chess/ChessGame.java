@@ -10,8 +10,13 @@ import java.util.ArrayList;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private TeamColor turn;
+    private ChessBoard board;
 
     public ChessGame() {
+        this.board = new ChessBoard(); //initialize board/starting white team
+        this.board.resetBoard();
+        this.turn = TeamColor.WHITE;
 
     }
 
@@ -19,7 +24,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return turn;
     }
 
     /**
