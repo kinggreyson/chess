@@ -23,7 +23,8 @@ public class KingMovesCalculator implements PieceMovesCalculator {
                     {
                         possibleMoves.add(new ChessMove(position, newPosition, null));
                     }
-                } else {
+                }
+                else {
                     possibleMoves.add(new ChessMove(position, newPosition, null));
                 }
 

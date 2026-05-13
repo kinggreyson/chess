@@ -182,3 +182,17 @@ PawnMovesCalculator(position, color, board);
                 }
         }
 }
+
+Phase 1:
+
+Checklist to be Implemented:
+Team's turn
+Valid Moves
+-Can't move into check
+-Implement Check
+-Implement Checkmate
+-Implement stalemate
+
+chessPiece handles most movement
+-Use valid moves to validate moves and remove moves such as check/checkmate.
+makeMove updates the state of the board depending on the move along with pawn promotions.
