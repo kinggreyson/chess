@@ -162,7 +162,24 @@ public class ChessGame {
     public ChessBoard getBoard() {
        return board;
     }
-
     //CREATE getKing function to figure out kings position
     //CREATE a noMoves function
+
+    //NEW FUNCTIONS
+    private ChessPosition getKing(TeamColor teamColor)
+    {
+        for (int i = 1; i<=8; i++) //Check every spot on board
+        {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece1 = board.getPiece(pos);
+                if (piece1 != null && piece1.getTeamColor() == teamColor && piece1.getPieceType() == ChessPiece.PieceType.KING) //Determines correct piece and color
+                {
+                    return pos; //Return King's current position
+                }
+            }
+        }
+        return null;
+    }
+
 }
