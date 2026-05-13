@@ -60,7 +60,13 @@ public class ChessGame {
 
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition); //pull every move
         Collection<ChessMove> possible = new ArrayList<>(); //Figure out the possible moves
-        return null;
+
+        for (ChessMove move : moves)
+        {
+            //Cant leave king in check
+            // if move doesn't put king in check... Add it to possible list
+        }
+        return possible;
     }
 
     /**
@@ -80,7 +86,32 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingLocation = getKing(teamColor);
+        if (kingLocation == null)
+        {
+            return false;
+        }
+
+        TeamColor opposite = ((teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE); //Figure out opposite color
+
+        for (int i = 1; i<=8; i++) //Check every spot on board
+        {
+            for (int j = 1; j<=8;j++)
+            {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece1 = board.getPiece(pos);
+                if (piece1 != null && piece1.getTeamColor() == opposite)
+                {
+                    Collection<ChessMove> moves = piece1.pieceMoves(board, pos);
+                    for (ChessMove move : moves)
+                    {
+                        if(move.getEndPosition().equals(kingLocation)); //Checks every opponent end position in relation to kings position
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -121,4 +152,6 @@ public class ChessGame {
     public ChessBoard getBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+    //CREATE getKing function to figure out kings position
 }
