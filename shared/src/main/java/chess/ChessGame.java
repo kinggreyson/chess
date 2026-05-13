@@ -33,7 +33,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.turn = team; //Set team
     }
 
     /**
@@ -52,7 +52,15 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) //if piece doesn't exist
+        {
+            return null;
+        }
+
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition); //pull every move
+        Collection<ChessMove> possible = new ArrayList<>(); //Figure out the possible moves
+        return null;
     }
 
     /**
