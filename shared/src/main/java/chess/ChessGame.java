@@ -13,6 +13,12 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor turn;
     private ChessBoard board;
+    private boolean WKingMove = false;
+    private boolean BKingMove = false;
+    private boolean WRook1Move = false;
+    private boolean WRook8Move = false;
+    private boolean BRook1Move = false;
+    private boolean BRook8Move = false;
 
     @Override
     public boolean equals(Object o) {
@@ -112,6 +118,37 @@ public class ChessGame {
         //Promotion Handler
         ChessPiece.PieceType type = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece1.getPieceType();
 
+        if (piece1.getPieceType() == ChessPiece.PieceType.KING)
+        {
+            if (piece1.getTeamColor() == TeamColor.WHITE)
+            {
+                WKingMove = true;
+            }
+            else
+            {
+                BKingMove = true;
+            }
+        }
+
+        if (piece1.getPieceType() == ChessPiece.PieceType.ROOK)
+        {
+            if (start.equals(new ChessPosition(1,1)))
+            {
+                WRook1Move = true;
+            }
+            if (start.equals(new ChessPosition(1,8)))
+            {
+                WRook8Move = true;
+            }
+            if (start.equals(new ChessPosition(8,1)))
+            {
+                BRook1Move = true;
+            }
+            if (start.equals(new ChessPosition(8,8)))
+            {
+                BRook8Move = true;
+            }
+        }
         board.addPiece(move.getEndPosition(), new ChessPiece(piece1.getTeamColor(), type));
         board.addPiece(start, null);
 
@@ -269,4 +306,6 @@ public class ChessGame {
         }
         return copy;
     }
+
+    //Implement Castling and EnPassent helper functions here:
 }
