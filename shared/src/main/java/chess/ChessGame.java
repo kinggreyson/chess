@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -12,6 +13,20 @@ import java.util.ArrayList;
 public class ChessGame {
     private TeamColor turn;
     private ChessBoard board;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return turn == chessGame.turn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(turn, board);
+    }
 
     public ChessGame() {
         this.board = new ChessBoard(); //initialize board/starting white team
@@ -62,8 +77,10 @@ public class ChessGame {
         Collection<ChessMove> possible = new ArrayList<>(); //Figure out the possible moves
 
         for (ChessMove move : moves) {
-            //Cant leave king in check
-            // if move doesn't put king in check... Add it to possible list
+            if (!KingInCheck(move, piece.getTeamColor()))
+            {
+                possible.add(move);
+            }
         }
         return possible;
     }
@@ -122,10 +139,11 @@ public class ChessGame {
                 ChessPiece piece1 = board.getPiece(pos);
                 if (piece1 != null && piece1.getTeamColor() == opposite) {
                     Collection<ChessMove> moves = piece1.pieceMoves(board, pos);
-                    for (ChessMove move : moves) {
+                    for (ChessMove move : moves) {  //Checks every opponent end position in relation to kings position
                         if (move.getEndPosition().equals(kingLocation))
-                            ; //Checks every opponent end position in relation to kings position
-                        return true;
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -220,7 +238,7 @@ public class ChessGame {
     {
         //simulate move on copied board
         ChessBoard copy =  Copy();
-        ChessPiece piece1 = Copy().getPiece(move.getStartPosition());
+        ChessPiece piece1 = copy.getPiece(move.getStartPosition());
 
         ChessPiece.PieceType type = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece1.getPieceType();
 
