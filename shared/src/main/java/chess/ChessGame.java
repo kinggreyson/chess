@@ -215,4 +215,40 @@ public class ChessGame {
         }
         return true;
     }
+
+    private boolean KingInCheck(ChessMove move, TeamColor teamColor)
+    {
+        //simulate move on copied board
+        ChessBoard copy =  Copy();
+        ChessPiece piece1 = Copy().getPiece(move.getStartPosition());
+
+        ChessPiece.PieceType type = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece1.getPieceType();
+
+        copy.addPiece(move.getEndPosition(), new ChessPiece(piece1.getTeamColor(), type));
+        copy.addPiece(move.getStartPosition(), null);
+
+        ChessBoard OG = this.board;
+        this.board = copy;
+        boolean Check = isInCheck(teamColor);
+        this.board = OG;
+
+        return Check;
+    }
+
+    private ChessBoard Copy() //COPY the chessboard for simulation
+    {
+        ChessBoard copy = new ChessBoard();
+        for (int i = 1; i <= 8; i++) //Check every spot on board
+        {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece1 = board.getPiece(pos);
+                if (piece1 != null)
+                {
+                    copy.addPiece(pos, new ChessPiece(piece1.getTeamColor(), piece1.getPieceType()));
+                }
+            }
+        }
+        return copy;
+    }
 }
