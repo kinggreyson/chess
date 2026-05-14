@@ -88,6 +88,11 @@ public class ChessGame {
                 possible.add(move);
             }
         }
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING)
+        {
+            possible.addAll(Castling(startPosition, piece.getTeamColor()));
+        }
         return possible;
     }
 
@@ -147,6 +152,22 @@ public class ChessGame {
             if (start.equals(new ChessPosition(8,8)))
             {
                 BRook8Move = true;
+            }
+        }
+
+        int RKMove = move.getEndPosition().getColumn() - start.getColumn();
+        if (piece1.getPieceType() == ChessPiece.PieceType.KING && Math.abs(RKMove) == 2) // Get absolute value of difference of move
+        {
+            int row = start.getRow();
+            if (RKMove == -2) //toward Rook1
+            {
+                board.addPiece(new ChessPosition(row, 4), new ChessPiece(piece1.getTeamColor(), ChessPiece.PieceType.ROOK));
+                board.addPiece(new ChessPosition(row, 1), null); // Switched Rook position to 4, leaving 1 empty
+            }
+            else //Toward Rook8
+            {
+                board.addPiece(new ChessPosition(row, 6), new ChessPiece(piece1.getTeamColor(), ChessPiece.PieceType.ROOK));
+                board.addPiece(new ChessPosition(row, 8), null); // Switched Rook position to 4, leaving 1 empty
             }
         }
         board.addPiece(move.getEndPosition(), new ChessPiece(piece1.getTeamColor(), type));
@@ -345,7 +366,7 @@ public class ChessGame {
                     && !CastlingCheck(new ChessPosition(row, 6), color)
                     && !CastlingCheck(new ChessPosition(row, 7), color))
             {
-                moves.add(new ChessMove(king, new ChessPosition(row, 3), null));
+                moves.add(new ChessMove(king, new ChessPosition(row, 7), null));
             }
         }
         //Side toward 8 Rook
