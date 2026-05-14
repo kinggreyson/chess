@@ -75,7 +75,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start = move.getStartPosition();
+        ChessPiece piece1 = board.getPiece(start);
+
+        if(piece1 == null) //Piece handler
+        {
+            throw new InvalidMoveException("No piece at position");
+        }
+        if(piece1.getTeamColor() != turn)//Turn handler
+        {
+            throw new InvalidMoveException("Not your turn");
+        }
+        Collection<ChessMove> possible= validMoves(start);
+        if (possible == null || !possible.contains(move)) //Impossible Move handler
+        {
+            throw new InvalidMoveException("Impossible Move");
+        }
+
+        //Promotion Handler
+        ChessPiece.PieceType type = move.getPromotionPiece() != null ? move.getPromotionPiece() : piece1.getPieceType();
+
+        board.addPiece(move.getEndPosition(), new ChessPiece(piece1.getTeamColor(), type));
+        board.addPiece(start, null);
+
+        turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -120,8 +143,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        return true;
-        //Need a function to determine if any moves are left...
+        return noMoves(teamColor);
     }
 
     /**
@@ -135,8 +157,8 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
-        return true;
-        //Need a function to determine if any moves are left...
+        return noMoves(teamColor);
+
     }
 
     /**
