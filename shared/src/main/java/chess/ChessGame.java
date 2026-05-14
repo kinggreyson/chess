@@ -308,4 +308,67 @@ public class ChessGame {
     }
 
     //Implement Castling and EnPassent helper functions here:
+
+    private Collection<ChessMove> Castling(ChessPosition king, TeamColor color)
+    {
+        Collection<ChessMove> moves = new ArrayList<>();
+        boolean kingMove = (color == TeamColor.WHITE) ? WKingMove : BKingMove;
+        if (kingMove || isInCheck(color))
+        {
+            return moves;
+        }
+        int row = (color == TeamColor.WHITE) ? 1 : 8;
+        boolean Rook1Moved = (color == TeamColor.WHITE) ? WRook1Move : BRook1Move;
+        boolean Rook8Moved = (color == TeamColor.WHITE) ? WRook8Move : BRook8Move;
+
+        //Side toward 1 Rook
+        if (!Rook1Moved)
+        {
+            ChessPiece rook = board.getPiece(new ChessPosition(row, 1));
+            if (rook != null && rook.getPieceType() == ChessPiece.PieceType.ROOK
+                    && board.getPiece(new ChessPosition(row, 2)) == null
+                    && board.getPiece(new ChessPosition(row, 3)) == null
+                    && board.getPiece(new ChessPosition(row, 4)) == null
+                    && !CastlingCheck(new ChessPosition(row, 2), color)
+                    && !CastlingCheck(new ChessPosition(row, 3), color)
+                    && !CastlingCheck(new ChessPosition(row, 4), color))
+            {
+                moves.add(new ChessMove(king, new ChessPosition(row, 3), null));
+            }
+        }
+        if (!Rook8Moved)
+        {
+            ChessPiece rook = board.getPiece(new ChessPosition(row, 8));
+            if (rook != null && rook.getPieceType() == ChessPiece.PieceType.ROOK
+                    && board.getPiece(new ChessPosition(row, 6)) == null
+                    && board.getPiece(new ChessPosition(row, 7)) == null
+                    && !CastlingCheck(new ChessPosition(row, 6), color)
+                    && !CastlingCheck(new ChessPosition(row, 7), color))
+            {
+                moves.add(new ChessMove(king, new ChessPosition(row, 3), null));
+            }
+        }
+        //Side toward 8 Rook
+        return moves;
+    }
+
+    private Boolean CastlingCheck(ChessPosition pos, TeamColor color) // Checks if Castling move can be made without putting king in check
+    {
+        TeamColor opposite = (color == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        for (int i = 1; i <= 8; i++) //Check every spot on board
+        {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos1 = new ChessPosition(i, j);
+                ChessPiece piece1 = board.getPiece(pos1);
+                if (piece1 != null && piece1.getTeamColor() == opposite) {
+                    for (ChessMove move : piece1.pieceMoves(board, pos1)) {
+                        if (move.getEndPosition().equals(pos)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
