@@ -9,31 +9,25 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         Collection<ChessMove> possibleMoves = new ArrayList<>();
         int[][] directions = {{2, 1}, {1, 2}, {2, -1}, {1, -2}, {-1, 2}, {-2, 1}, {-1, -2}, {-2, -1}};
 
-        for (int[] direction : directions) { //Divide into each direction
+        for (int[] direction : directions) {
             int rowDir = direction[0];
             int colDir = direction[1];
-            int currentRow = position.row + rowDir;
-            int currentCol = position.col + colDir;
+            int currentRow = position.getRow() + rowDir;
+            int currentCol = position.getColumn() + colDir;
+
             if (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
-                ChessPosition newPosition = new ChessPosition(currentRow, currentCol); //establish new position
-                ChessPiece target = board.getPiece(newPosition); //Check for other pieces
-                if (target != null) //other piece in square
-                {
-                    if (target.getTeamColor() != board.getPiece(position).getTeamColor()) //if piece is opposite color
-                    {
+                ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
+                ChessPiece target = board.getPiece(newPosition);
+
+                if (target != null) {
+                    if (target.getTeamColor() != board.getPiece(position).getTeamColor()) {
                         possibleMoves.add(new ChessMove(position, newPosition, null));
                     }
                 } else {
                     possibleMoves.add(new ChessMove(position, newPosition, null));
                 }
-
-                currentRow += rowDir;
-                currentCol += colDir;
             }
-
         }
         return possibleMoves;
     }
-
 }
-
