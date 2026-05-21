@@ -10,10 +10,10 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         int[][] directions = {{2, 1}, {1, 2}, {2, -1}, {1, -2}, {-1, 2}, {-2, 1}, {-1, -2}, {-2, -1}};
 
         for (int[] direction : directions) { //Divide into each direction
-            int row_dir = direction[0];
-            int col_dir = direction[1];
-            int currentRow = position.row + row_dir;
-            int currentCol = position.col + col_dir;
+            int rowDir = direction[0];
+            int colDir = direction[1];
+            int currentRow = position.row + rowDir;
+            int currentCol = position.col + colDir;
             if (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
                 ChessPosition newPosition = new ChessPosition(currentRow, currentCol); //establish new position
                 ChessPiece target = board.getPiece(newPosition); //Check for other pieces
@@ -27,8 +27,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
                     possibleMoves.add(new ChessMove(position, newPosition, null));
                 }
 
-                currentRow += row_dir;
-                currentCol += col_dir;
+                currentRow += rowDir;
+                currentCol += colDir;
             }
 
         }
