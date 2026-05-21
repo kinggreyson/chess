@@ -1,8 +1,5 @@
 package service;
-import dataaccess.BadRequestException;
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -32,13 +29,13 @@ public class UserService
         // 400 Check - Empty username, password, or email
         if (req.username == null || req.password == null || req.email == null)
         {
-            throw new DataAccessException("Error: bad request");
+            throw new BadRequestException("Error: bad request");
         }
 
         //403 Check - Username already taken
         if (userData.getUser(req.username) != null)
         {
-            throw new DataAccessException(("Error: already taken"));
+            throw new AlreadyTakenException(("Error: already taken"));
         }
 
         UserData user = new UserData(req.username(), req.password(), req.email());

@@ -32,7 +32,7 @@ public class GameService {
         //401 Check - authToken not found
         if(gameData.getAuth(authToken) == null)
         {
-            throw new DataAccessException("Error: unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         return gameData.listGames();
     }
