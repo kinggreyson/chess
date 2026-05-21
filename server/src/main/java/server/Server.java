@@ -20,13 +20,17 @@ public class Server {
     private final ClearService clearService;
     private final Gson gson = new Gson();
 
+
     public Server() {
         DataAccess dataAccess = new DataAccessMemory();
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
         clearService = new ClearService(dataAccess);
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalin = Javalin.create(config -> {
+            config.staticFiles.add("web");
+            config.jsonMapper(new io.javalin.json.JavalinGson());
+        });
 
         // Register your endpoints and exception handlers here.
 
@@ -123,7 +127,7 @@ public class Server {
     {
         String authToken = ctx.header("authorization");
         GameService.JoinGameRequest request = gson.fromJson(ctx.body(), GameService.JoinGameRequest.class);
-        gameService.joinGameResult(new GameService.JoinGameRequest(authToken, request.playerColor(), request.gameID()));
+        gameService.joinGame(new GameService.JoinGameRequest(authToken, request.playerColor(), request.gameID()));
         ctx.status(200);
         ctx.json("{}");
     }

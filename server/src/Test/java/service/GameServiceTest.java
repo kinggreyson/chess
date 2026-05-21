@@ -59,7 +59,7 @@ public class GameServiceTest {
         GameService.CreateGameRequest createRequest = new GameService.CreateGameRequest(authToken, "testGame");
         GameService.CreateGameResult createResult = gameService.createGame(createRequest);
         GameService.JoinGameRequest joinRequest = new GameService.JoinGameRequest(authToken, "WHITE", createResult.gameID());
-        assertDoesNotThrow(() -> gameService.joinGameResult(joinRequest));
+        assertDoesNotThrow(() -> gameService.joinGame(joinRequest));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class GameServiceTest {
         GameService.CreateGameRequest createRequest = new GameService.CreateGameRequest(authToken, "testGame");
         GameService.CreateGameResult createResult = gameService.createGame(createRequest);
         GameService.JoinGameRequest joinRequest = new GameService.JoinGameRequest("invalidToken", "WHITE", createResult.gameID());
-        assertThrows(UnauthorizedException.class, () -> gameService.joinGameResult(joinRequest));
+        assertThrows(UnauthorizedException.class, () -> gameService.joinGame(joinRequest));
     }
 
     @Test
@@ -75,13 +75,13 @@ public class GameServiceTest {
         GameService.CreateGameRequest createRequest = new GameService.CreateGameRequest(authToken, "testGame");
         GameService.CreateGameResult createResult = gameService.createGame(createRequest);
         GameService.JoinGameRequest joinRequest = new GameService.JoinGameRequest(authToken, "WHITE", createResult.gameID());
-        gameService.joinGameResult(joinRequest);
-        assertThrows(AlreadyTakenException.class, () -> gameService.joinGameResult(joinRequest));
+        gameService.joinGame(joinRequest);
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(joinRequest));
     }
 
     @Test
     public void joinGameNotFound() {
         GameService.JoinGameRequest joinRequest = new GameService.JoinGameRequest(authToken, "WHITE", 9999);
-        assertThrows(BadRequestException.class, () -> gameService.joinGameResult(joinRequest));
+        assertThrows(BadRequestException.class, () -> gameService.joinGame(joinRequest));
     }
 }

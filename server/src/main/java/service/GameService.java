@@ -59,17 +59,18 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public void joinGameResult(JoinGameRequest request) throws DataAccessException
+    public void joinGame(JoinGameRequest request) throws DataAccessException
     {
         //401 Check - authToken not found
-        if(gameData.getAuth(request.authToken) == null)
+        if(gameData.getAuth(request.authToken()) == null)
         {
             throw new UnauthorizedException("Error: unauthorized");
         }
 
         //400 Check - Check if game exists
-        GameData game = gameData.getGame(request.gameID);
-        if (game == null)
+        GameData game = gameData.getGame(request.gameID());
+        if (game == null || request.playerColor() == null ||
+                (!request.playerColor().equals("WHITE") && !request.playerColor().equals("BLACK")))
         {
             throw new BadRequestException("Error: bad request");
         }
@@ -87,7 +88,7 @@ public class GameService {
         //Add new player into game (joinGameResult)
         GameData newPlayer;
         //get newplayer color
-        AuthData auth = gameData.getAuth(request.authToken);
+        AuthData auth = gameData.getAuth(request.authToken());
         if(request.playerColor().equals("WHITE"))
         {
             newPlayer = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
