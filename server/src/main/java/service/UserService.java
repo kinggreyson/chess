@@ -1,6 +1,8 @@
 package service;
+import dataaccess.BadRequestException;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -53,7 +55,7 @@ public class UserService
         //400 Check - Empty Username or password
         if (req.username == null || req.password == null)
         {
-            throw new DataAccessException("Error: bad request");
+            throw new BadRequestException("Error: bad request");
         }
 
         UserData user = userData.getUser(req.username());
@@ -61,7 +63,7 @@ public class UserService
         //401 Check - Incorrect username or password
         if (user == null || !user.password().equals(req.password()))
         {
-            throw new DataAccessException("Error: unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
 
         String token = UUID.randomUUID().toString();
@@ -76,7 +78,7 @@ public class UserService
         //401 - AuthToken
         if (userData.getAuth(authToken) == null)
         {
-            throw new DataAccessException("Error: unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         //delete authToken
         userData.deleteAuth(authToken);

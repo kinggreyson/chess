@@ -1,8 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -19,13 +18,13 @@ public class GameService {
     }
 
     //createGame(createGameRequest)
-    public record createGameRequest(String authToken, String gameName)
+    public record CreateGameRequest(String authToken, String gameName)
     {}
     //SERVICE gameID return
-    public record createGameResult(int gameID)
+    public record CreateGameResult(int gameID)
     {}
     //SERVICE joinGame(joinGameRequest)
-    public record joinGame(String authToken, String playerColor, int gameID)
+    public record JoinGameRequest(String authToken, String playerColor, int gameID)
     {}
     //listGames(listGamesRequest)
     public List<GameData> listGames(String authToken) throws DataAccessException
@@ -39,50 +38,50 @@ public class GameService {
     }
 
     //SERVICE createGameResult return
-    public createGameResult createGame(createGameRequest request) throws DataAccessException
+    public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException
     {
         //401 Check - authToken not found
         if(gameData.getAuth(request.authToken) == null)
         {
-            throw new DataAccessException("Error: unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
 
         //400 Check - gameName is null or empty
         if(request.gameName == null || request.gameName().isEmpty())
         {
-            throw new DataAccessException("Error: bad request");
+            throw new BadRequestException("Error: bad request");
         }
 
         int gameID = counterID++;
         //ID, WhitePlayer, BlackPlayer, gameName, ChessGame
         GameData newGame = new GameData(gameID, null, null, request.gameName, new ChessGame());
         gameData.createGame(newGame);
-        return new createGameResult(gameID);
+        return new CreateGameResult(gameID);
     }
 
-    public void joinGameResult(joinGame request) throws DataAccessException
+    public void joinGameResult(JoinGameRequest request) throws DataAccessException
     {
         //401 Check - authToken not found
         if(gameData.getAuth(request.authToken) == null)
         {
-            throw new DataAccessException("Error: unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
 
         //400 Check - Check if game exists
         GameData game = gameData.getGame(request.gameID);
         if (game == null)
         {
-            throw new DataAccessException("Error: bad request");
+            throw new BadRequestException("Error: bad request");
         }
 
         //403 Check - Color already taken
         if(request.playerColor().equals("WHITE") && game.whiteUsername() != null)
         {
-            throw new DataAccessException("Error: already taken");
+            throw new AlreadyTakenException("Error: already taken");
         }
         if(request.playerColor().equals("BLACK") && game.blackUsername() != null)
         {
-            throw new DataAccessException("Error: already taken");
+            throw new AlreadyTakenException("Error: already taken");
         }
 
         //Add new player into game (joinGameResult)
