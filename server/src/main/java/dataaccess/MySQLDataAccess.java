@@ -1,18 +1,11 @@
 package dataaccess;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
-//SQL Imports
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.List;
+//SQL Imports
+
 
 public class MySQLDataAccess implements DataAccess {
     private final Gson gson = new Gson();
@@ -22,7 +15,7 @@ public class MySQLDataAccess implements DataAccess {
         configureDatabase();
     }
 
-    private final String[] createTables = {
+    private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS users (
                 username VARCHAR(256) NOT NULL,
@@ -55,17 +48,44 @@ public class MySQLDataAccess implements DataAccess {
         DatabaseManager.createDatabase();
         try (var connection = DatabaseManager.getConnection())
         {
-            for (var table : createTables)
+            for (var table : createStatements)
             {
-                try (var preparedTable = connection.prepareStatement(table))
+                try (var preparedStatement = connection.prepareStatement(table))
                 {
-                    preparedTable.executeUpdate();
+                    preparedStatement.executeUpdate();
                 }
-                catch (Exception e)
+                catch (Exception a)
                 {
-                    throw new DataAccessException("Unable to configure database: " + e.getMessage());
+                    throw new DataAccessException("Unable to configure database: " + a.getMessage());
                 }
             }
         }
     }
+
+    @Override
+    public void Clear() throws DataAccessException
+    {
+        try (var connection = DatabaseManager.getConnection())
+        {
+            try (var statement = connection.prepareStatement("DELETE FROM users"))
+            {
+                statement.executeUpdate();
+            }
+            try (var statement = connection.prepareStatement("DELETE FROM auth"))
+            {
+                statement.executeUpdate();
+            }
+            try (var statement = connection.prepareStatement("DELETE FROM games")) {
+                statement.executeUpdate();
+            }
+        }
+        catch (SQLException a)
+        {
+            throw new DataAccessException("Unable to clear database: " + a.getMessage());
+        }
+    }
+
+    //TODO users
+    //TODO auth
+    //TODO games
 }
