@@ -1,16 +1,12 @@
 package dataaccess;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MySQLDataAccess implements DataAccess {
@@ -111,10 +107,10 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         var statement = "SELECT username, password, email FROM users WHERE username = ?";
-        try (var conn = DatabaseManager.getConnection();
-             var stmt = conn.prepareStatement(statement)) {
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement)) {
+            state.setString(1, username);
+            try (ResultSet rs = state.executeQuery()) {
                 if (rs.next()) {
                     return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
                 }
@@ -125,8 +121,55 @@ public class MySQLDataAccess implements DataAccess {
         return null;
     }
 
+    //Auth functions
+    @Override
+    public void createAuth(AuthData auth) throws DataAccessException
+    {
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?,?)";
+        try (var connection = DatabaseManager.getConnection())
+        {
+            var state = connection.prepareStatement(statement);
+            state.setString(1, auth.authToken());
+            state.setString(2, auth.username());
+            state.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new DataAccessException("Unable to create auth" + e.getMessage());
+        }
+    }
 
-    //TODO users
+    @Override
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        var statement = "SELECT authToken, username FROM auth WHERE authToken = ?";
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement)) {
+            state.setString(1, authToken);
+            try (ResultSet rs = state.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get auth: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteAuth(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM auth WHERE authToken = ?";
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement)) {
+            state.setString(1, authToken);
+            state.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to delete auth: " + e.getMessage());
+        }
+    }
+
+
+
     //TODO auth
     //TODO games
 }
