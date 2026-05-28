@@ -1,12 +1,16 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MySQLDataAccess implements DataAccess {
@@ -28,9 +32,9 @@ public class MySQLDataAccess implements DataAccess {
             """,
             """
             CREATE TABLE IF NOT EXISTS auth (
-                authtoken VARCHAR(256) NOT NULL,
+                authToken VARCHAR(256) NOT NULL,
                 username VARCHAR(256) NOT NULL,
-                PRIMARY KEY (authtoken)
+                PRIMARY KEY (authToken)
                 )
             """,
             """
@@ -56,17 +60,17 @@ public class MySQLDataAccess implements DataAccess {
                 {
                     preparedStatement.executeUpdate();
                 }
-                catch (Exception a)
-                {
-                    throw new DataAccessException("Unable to configure database: " + a.getMessage());
-                }
             }
+        }
+        catch (Exception a)
+        {
+            throw new DataAccessException("Unable to configure database: " + a.getMessage());
         }
     }
 
     //Clear Data
     @Override
-    public void Clear() throws DataAccessException
+    public void clear() throws DataAccessException
     {
         try (var connection = DatabaseManager.getConnection())
         {
@@ -125,10 +129,10 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void createAuth(AuthData auth) throws DataAccessException
     {
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?,?)";
-        try (var connection = DatabaseManager.getConnection())
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement))
         {
-            var state = connection.prepareStatement(statement);
             state.setString(1, auth.authToken());
             state.setString(2, auth.username());
             state.executeUpdate();
@@ -167,9 +171,79 @@ public class MySQLDataAccess implements DataAccess {
             throw new DataAccessException("Unable to delete auth: " + e.getMessage());
         }
     }
+    //Games
+    @Override
+    public void createGame(GameData game) throws DataAccessException {
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        String gameJson = gson.toJson(game.game());
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            state.setString(1, game.whiteUsername());
+            state.setString(2, game.blackUsername());
+            state.setString(3, game.gameName());
+            state.setString(4, gameJson);
+            state.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to create game: " + e.getMessage());
+        }
+    }
 
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException {
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID = ?";
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement)) {
+            state.setInt(1, gameID);
+            try (ResultSet rs = state.executeQuery()) {
+                if (rs.next()) {
+                    return readGame(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get game: " + e.getMessage());
+        }
+        return null;
+    }
 
+    @Override
+    public List<GameData> listGames() throws DataAccessException {
+        List<GameData> games = new ArrayList<>();
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement);
+             ResultSet rs = state.executeQuery()) {
+            while (rs.next()) {
+                games.add(readGame(rs));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to list games: " + e.getMessage());
+        }
+        return games;
+    }
 
-    //TODO auth
-    //TODO games
+    @Override
+    public void updateGame(GameData game) throws DataAccessException {
+        var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        String gameJson = gson.toJson(game.game());
+        try (var connection = DatabaseManager.getConnection();
+             var state = connection.prepareStatement(statement)) {
+            state.setString(1, game.whiteUsername());
+            state.setString(2, game.blackUsername());
+            state.setString(3, game.gameName());
+            state.setString(4, gameJson);
+            state.setInt(5, game.gameID());
+            state.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to update game: " + e.getMessage());
+        }
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+        ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        }
 }
