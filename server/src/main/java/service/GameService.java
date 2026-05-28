@@ -38,24 +38,18 @@ public class GameService {
     }
 
     //SERVICE createGameResult return
-    public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException
-    {
-        //401 Check - authToken not found
-        if(gameData.getAuth(request.authToken) == null)
-        {
+    public CreateGameResult createGame(CreateGameRequest request) throws DataAccessException {
+        // 401 check
+        if (gameData.getAuth(request.authToken()) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
-
-        //400 Check - gameName is null or empty
-        if(request.gameName == null || request.gameName().isEmpty())
-        {
+        // 400 check
+        if (request.gameName() == null || request.gameName().isEmpty()) {
             throw new BadRequestException("Error: bad request");
         }
 
-        int gameID = counterID++;
-        //ID, WhitePlayer, BlackPlayer, gameName, ChessGame
-        GameData newGame = new GameData(gameID, null, null, request.gameName, new ChessGame());
-        gameData.createGame(newGame);
+        GameData game = new GameData(0, null, null, request.gameName(), new ChessGame());
+        int gameID = gameData.createGame(game);
         return new CreateGameResult(gameID);
     }
 

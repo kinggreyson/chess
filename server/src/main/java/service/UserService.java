@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import java.util.UUID;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService
 {
@@ -58,7 +59,7 @@ public class UserService
         UserData user = userData.getUser(req.username());
 
         //401 Check - Incorrect username or password
-        if (user == null || !user.password().equals(req.password()))
+        if (user == null || !BCrypt.checkpw(req.password(), user.password()))
         {
             throw new UnauthorizedException("Error: unauthorized");
         }

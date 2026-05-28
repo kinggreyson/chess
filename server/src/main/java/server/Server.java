@@ -21,12 +21,16 @@ public class Server {
     private final Gson gson = new Gson();
 
 
-    public Server() {
-        DataAccess dataAccess = new DataAccessMemory();
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
-        clearService = new ClearService(dataAccess);
-
+    public Server()
+    {
+        try {
+            DataAccess dataAccess = new MySQLDataAccess();
+            userService = new UserService(dataAccess);
+            gameService = new GameService(dataAccess);
+            clearService = new ClearService(dataAccess);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize database: " + e.getMessage());
+        }
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
             config.jsonMapper(new io.javalin.json.JavalinGson());

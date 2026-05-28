@@ -39,9 +39,10 @@ public class DataAccessMemory implements DataAccess{
 
     //GAME SECTION
     @Override
-    public void createGame(GameData game) throws DataAccessException
+    public int createGame(GameData game) throws DataAccessException
     {
         games.put(game.gameID(), game);
+        return game.gameID();
     }
 
     @Override

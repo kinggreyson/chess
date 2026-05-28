@@ -173,7 +173,7 @@ public class MySQLDataAccess implements DataAccess {
     }
     //Games
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public int createGame(GameData game) throws DataAccessException {
         var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         String gameJson = gson.toJson(game.game());
         try (var connection = DatabaseManager.getConnection();
@@ -183,9 +183,15 @@ public class MySQLDataAccess implements DataAccess {
             state.setString(3, game.gameName());
             state.setString(4, gameJson);
             state.executeUpdate();
+            try (ResultSet keys = state.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Unable to create game: " + e.getMessage());
         }
+        return 0;
     }
 
     @Override
