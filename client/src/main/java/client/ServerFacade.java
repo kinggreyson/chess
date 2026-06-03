@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 
 
 public class ServerFacade {
@@ -24,19 +25,21 @@ public ServerFacade(int port)
     this.serverUrl = "http://localhost:" + port;
 }
 
-public AuthData register(String username, String password, String email)
+public AuthData register(String username, String password, String email) throws Exception
 {
-
+    var makeup = Map.of("username", username, "password", password, "email", email);
+    return request("POST", "/user", makeup, null, AuthData.class); //Register no authToken needed
 }
 
-public AuthData login(String username, String password)
+public AuthData login(String username, String password) throws Exception
 {
-
+    var makeup = Map.of("username", username, "password", password);
+    return request("POST", "/session", makeup, null, AuthData.class); //login no authToken needed
 }
 
-public void logout(String authToken)
+public void logout(String authToken) throws Exception
 {
-
+    request("DELETE", "/session", null, authToken, null); //Delete login, no body/response needed
 }
 
 public int createGame(String authToken, String gameName)
