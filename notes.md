@@ -196,3 +196,7 @@ Valid Moves
 chessPiece handles most movement
 -Use valid moves to validate moves and remove moves such as check/checkmate.
 makeMove updates the state of the board depending on the move along with pawn promotions.
+
+Phase 5:
+var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+System.out.println("♕ 240 Chess Client: " + piece);
