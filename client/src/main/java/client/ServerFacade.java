@@ -39,7 +39,7 @@ public AuthData login(String username, String password) throws Exception
 
 public void logout(String authToken) throws Exception
 {
-    request("DELETE", "/session", null, authToken, null); //Delete login, no body/response needed
+    request("DELETE", "/session", null, authToken, null); //Delete login, no Body/response needed
 }
 
 public int createGame(String authToken, String gameName) throws Exception
