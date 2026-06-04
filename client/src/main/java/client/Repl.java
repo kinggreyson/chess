@@ -61,7 +61,7 @@ public class Repl {
         this.postlogin = new Postlogin(server, this, username, authToken);
     }
 
-    public void LogoutSet()
+    public void logoutSet()
     {
         this.loggedIn = false;
         this.postlogin = null;

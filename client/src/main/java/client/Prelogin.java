@@ -40,9 +40,9 @@ public class Prelogin {
         System.out.println(SET_TEXT_COLOR_GREEN + SET_TEXT_BOLD + "\n Available Options" + RESET_TEXT_BOLD_FAINT);
         System.out.println(SET_TEXT_COLOR_WHITE + "\n help"
                 + SET_TEXT_COLOR_LIGHT_GREY + " - Shows the help menu");
-        System.out.println(SET_TEXT_COLOR_WHITE + "\n login (username) + (password)"
+        System.out.println(SET_TEXT_COLOR_WHITE + "\n login <username><password>"
                 + SET_TEXT_COLOR_LIGHT_GREY + " - Login to your account");
-        System.out.println(SET_TEXT_COLOR_WHITE + "\n register (username) + (password)"
+        System.out.println(SET_TEXT_COLOR_WHITE + "\n register <username><password><email>"
                 + SET_TEXT_COLOR_LIGHT_GREY + " - Register your new account");
         System.out.println(SET_TEXT_COLOR_WHITE + "\n quit"
                 + SET_TEXT_COLOR_LIGHT_GREY + " - Exit the game" + RESET_TEXT_COLOR);
