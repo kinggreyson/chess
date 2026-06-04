@@ -16,14 +16,14 @@ public class BoardDraw {
     private static final String border = SET_BG_COLOR_DARK_GREY;
 
     //Piece Colors
-    private static final String white = SET_TEXT_COLOR_WHITE + SET_TEXT_BOLD;
-    private static final String black = SET_TEXT_COLOR_BLACK + SET_TEXT_BOLD;
+    private static final String white = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
+    private static final String black = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
 
     //Setup Board
     public static void board(ChessBoard board, boolean isWhitePerspective)
     {
         StringBuilder build = new StringBuilder();
-        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("/n");
+        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
 
         if(isWhitePerspective)
         {
@@ -33,7 +33,7 @@ public class BoardDraw {
         {
             blackBoard(build, board);
         }
-        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("/n");
+        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
         System.out.print(build);
     }
 
@@ -50,7 +50,7 @@ public class BoardDraw {
     private static void blackBoard(StringBuilder build, ChessBoard board) //perspective from black
     {
         columnLabel(build, false);
-        for (int row = 8; row >= 1; row--)
+        for (int row = 1; row <= 8; row++)
         {
             rowLabel(build, board, row, false);
         }
@@ -75,7 +75,7 @@ public class BoardDraw {
     private static void rowLabel(StringBuilder build, ChessBoard board, int row, boolean iswhite)
     {
          build.append(border).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
-         for (int i = 0; i <= 8; i++)
+         for (int i = 0; i < 8; i++)
          {
              int col = iswhite ? i + 1: 8 - i;
              boolean isCream = ((row + col) & 1) == 0;
@@ -88,7 +88,7 @@ public class BoardDraw {
 
          }
         build.append(border).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
-         build.append(RESET_BG_COLOR).append("/n");
+         build.append(RESET_BG_COLOR).append("\n");
     }
 
     private static String pieceType(ChessPiece piece)
