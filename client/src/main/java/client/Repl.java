@@ -41,12 +41,12 @@ public class Repl {
                         System.out.println(SET_TEXT_COLOR_GREEN + "♗ Thanks for playing! ♞");
                         break;
                     }
-                    prelogin.exam(userInput, list); //Future Function in prelogin
+                    prelogin.options(userInput, list); //Future Function in prelogin
 
                 }
                 else
                 {
-                    postlogin.exam(userInput, list); //Future Function in postlogin
+                    postlogin.options(userInput, list); //Future Function in postlogin
                 }
             } catch (Exception error)
             {
