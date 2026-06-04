@@ -11,13 +11,13 @@ import static ui.EscapeSequences.*;
 public class BoardDraw {
 
     //Board Color
-    private static final String lightSquare = SET_BG_COLOR_CREAM;
-    private static final String darkSquare = SET_BG_COLOR_DARK_GREEN;
-    private static final String border = SET_BG_COLOR_DARK_GREY;
+    private static final String LIGHT_SQUARE = SET_BG_COLOR_CREAM;
+    private static final String DARK_SQUARE = SET_BG_COLOR_DARK_GREEN;
+    private static final String BORDER  = SET_BG_COLOR_DARK_GREY;
 
     //Piece Colors
-    private static final String white = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
-    private static final String black = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
+    private static final String WHITE_PIECE = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
+    private static final String BLACK_PIECE = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
 
     //Setup Board
     public static void board(ChessBoard board, boolean isWhitePerspective)
@@ -37,7 +37,7 @@ public class BoardDraw {
         System.out.print(build);
     }
 
-    private static void whiteBoard(StringBuilder build, ChessBoard board) //perspective from white
+    private static void whiteBoard(StringBuilder build, ChessBoard board) //perspective from WHITE_PIECE
     {
         columnLabel(build, true);
         for (int row = 8; row >= 1; row--)
@@ -59,13 +59,13 @@ public class BoardDraw {
 
     private static void columnLabel(StringBuilder build, boolean isWhite)
     {
-        build.append(border).append(SET_TEXT_COLOR_WHITE).append("   ");
-        List<String> Column = new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H"));
+        build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append("   ");
+        List<String> column = new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H"));
         if( !isWhite)
         {
-            Collections.reverse(Column);
+            Collections.reverse(column);
         }
-        for (String col : Column)
+        for (String col : column)
         {
             build.append(" ").append(col).append(" ");
         }
@@ -74,12 +74,12 @@ public class BoardDraw {
 
     private static void rowLabel(StringBuilder build, ChessBoard board, int row, boolean iswhite)
     {
-         build.append(border).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
+         build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
          for (int i = 0; i < 8; i++)
          {
              int col = iswhite ? i + 1: 8 - i;
              boolean isCream = ((row + col) & 1) == 0;
-             String colour = isCream ? lightSquare : darkSquare;
+             String colour = isCream ? LIGHT_SQUARE : DARK_SQUARE;
              build.append(colour);
 
              ChessPosition position = new ChessPosition(row, col);
@@ -87,7 +87,7 @@ public class BoardDraw {
              build.append(pieceType(piece));
 
          }
-        build.append(border).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
+        build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
          build.append(RESET_BG_COLOR).append("\n");
     }
 
@@ -99,7 +99,7 @@ public class BoardDraw {
         }
 
         boolean isWhite = piece.getTeamColor() == ChessGame.TeamColor.WHITE;
-        String colour = isWhite ? white : black;
+        String colour = isWhite ? WHITE_PIECE : BLACK_PIECE;
         String type;
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             type = isWhite ? WHITE_KING : BLACK_KING;
