@@ -24,7 +24,6 @@ public class BoardDraw {
     {
         StringBuilder build = new StringBuilder();
         build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
-
         if(isWhitePerspective)
         {
             whiteBoard(build, board);
@@ -42,7 +41,7 @@ public class BoardDraw {
         columnLabel(build, true);
         for (int row = 8; row >= 1; row--)
         {
-            rowLabel(build, board, row, false);
+            rowLabel(build, board, row, true);
         }
         columnLabel(build, true);
     }
@@ -67,8 +66,9 @@ public class BoardDraw {
         }
         for (String col : column)
         {
-            build.append(" ").append(col).append(" ");
+            build.append(col).append("   ");
         }
+
         build.append("   ").append(RESET_BG_COLOR).append("\n");
     }
 
@@ -78,7 +78,7 @@ public class BoardDraw {
          for (int i = 0; i < 8; i++)
          {
              int col = iswhite ? i + 1: 8 - i;
-             boolean isCream = ((row + col) & 1) == 0;
+             boolean isCream = ((row + col) & 1) != 0;
              String colour = isCream ? LIGHT_SQUARE : DARK_SQUARE;
              build.append(colour);
 
