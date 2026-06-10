@@ -44,6 +44,7 @@ public class MySQLDataAccess implements DataAccess {
                 blackUsername VARCHAR(256),
                 gameName VARCHAR(256) NOT NULL,
                 game TEXT NOT NULL,
+                isGameOver BOOLEAN DEFAULT FALSE,
                 PRIMARY KEY (gameID)
                 )
             """
@@ -174,7 +175,7 @@ public class MySQLDataAccess implements DataAccess {
     //Games
     @Override
     public int createGame(GameData game) throws DataAccessException {
-        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game, isGameOver) VALUES (?, ?, ?, ?,?)";
         String gameJson = gson.toJson(game.game());
         try (var connection = DatabaseManager.getConnection();
              var state = connection.prepareStatement(statement, java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -229,7 +230,7 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void updateGame(GameData game) throws DataAccessException {
-        var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ?, isGameOver = ? WHERE gameID = ?";
         String gameJson = gson.toJson(game.game());
         try (var connection = DatabaseManager.getConnection();
              var state = connection.prepareStatement(statement)) {
@@ -250,6 +251,6 @@ public class MySQLDataAccess implements DataAccess {
         String blackUsername = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
         ChessGame game = gson.fromJson(rs.getString("game"), ChessGame.class);
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, false);
         }
 }

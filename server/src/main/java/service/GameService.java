@@ -48,7 +48,7 @@ public class GameService {
             throw new BadRequestException("Error: bad request");
         }
 
-        GameData game = new GameData(0, null, null, request.gameName(), new ChessGame());
+        GameData game = new GameData(0, null, null, request.gameName(), new ChessGame(), false);
         int gameID = gameData.createGame(game);
         return new CreateGameResult(gameID);
     }
@@ -85,11 +85,11 @@ public class GameService {
         AuthData auth = gameData.getAuth(request.authToken());
         if(request.playerColor().equals("WHITE"))
         {
-            newPlayer = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
+            newPlayer = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game(), false);
         }
         else
         {
-            newPlayer = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
+            newPlayer = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game(), false);
         }
         gameData.updateGame(newPlayer);
     }
