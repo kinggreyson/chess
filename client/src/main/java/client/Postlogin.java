@@ -82,7 +82,7 @@ public class Postlogin {
     private void logout() throws Exception
     {
         server.logout(authToken);
-        repl.logoutSet();
+        repl.logout();
         System.out.println(SET_TEXT_COLOR_GREEN + "Logged out" + RESET_TEXT_COLOR);
 
     }

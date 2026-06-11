@@ -60,7 +60,7 @@ public class Prelogin {
         String password = list[2];
 
         AuthData auth = server.login(username, password);
-        repl.loginSet(auth.username(), auth.authToken());
+        repl.login(auth.username(), auth.authToken());
         System.out.println(SET_TEXT_COLOR_GREEN +
                 "Welcome, ♜ {" + username + "} ♖" + RESET_TEXT_COLOR);
     }
@@ -78,7 +78,7 @@ public class Prelogin {
         String email = list[3];
 
         AuthData auth = server.register(username, password, email);
-        repl.loginSet(auth.username(), auth.authToken());
+        repl.login(auth.username(), auth.authToken());
         System.out.println(SET_TEXT_COLOR_GREEN + "Registered as " + username + RESET_TEXT_COLOR);
     }
 

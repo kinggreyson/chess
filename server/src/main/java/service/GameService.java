@@ -10,7 +10,6 @@ import java.util.List;
 
 public class GameService {
     private final DataAccess gameData;
-    private int counterID = 1;
 
     public GameService(DataAccess dataAccess)
     {
@@ -55,8 +54,9 @@ public class GameService {
 
     public void joinGame(JoinGameRequest request) throws DataAccessException
     {
+        AuthData token = gameData.getAuth(request.authToken);
         //401 Check - authToken not found
-        if(gameData.getAuth(request.authToken()) == null)
+        if(token == null)
         {
             throw new UnauthorizedException("Error: unauthorized");
         }
@@ -82,14 +82,13 @@ public class GameService {
         //Add new player into game (joinGameResult)
         GameData newPlayer;
         //get newplayer color
-        AuthData auth = gameData.getAuth(request.authToken());
         if(request.playerColor().equals("WHITE"))
         {
-            newPlayer = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game(), false);
+            newPlayer = new GameData(game.gameID(), token.username(), game.blackUsername(), game.gameName(), game.game(), false);
         }
         else
         {
-            newPlayer = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game(), false);
+            newPlayer = new GameData(game.gameID(), game.whiteUsername(), token.username(), game.gameName(), game.game(), false);
         }
         gameData.updateGame(newPlayer);
     }

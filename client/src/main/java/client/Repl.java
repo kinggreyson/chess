@@ -18,14 +18,14 @@ public class Repl {
     public void chessRun()
     {
         System.out.println(SET_TEXT_COLOR_GREEN + SET_TEXT_BOLD + "♔ CHESS ♛");
-        System.out.println(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT + "Type 'help' to start");
+        System.out.println(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT + "WELCOME TO GET STARTED TYPE 'help'");
 
         Scanner input = new Scanner(System.in);
         while (true)
         {
             printPrompt();
             String newLine = input.nextLine().trim();
-            if (newLine.isEmpty())
+            if (newLine.isEmpty()) //Formatting
             {
                 continue;
             }
@@ -34,47 +34,45 @@ public class Repl {
 
             try
             {
-                if (!loggedIn)
+                if (!isLoggedIn())
                 {
                     if(userInput.equals("quit"))
                     {
                         System.out.println(SET_TEXT_COLOR_GREEN + "♗ Thanks for playing! ♞");
                         break;
                     }
-                    prelogin.options(userInput, list); //Future Function in prelogin
+                    prelogin.options(userInput, list); //Send to prelogin since user is not logged in
 
                 }
                 else
                 {
-                    postlogin.options(userInput, list); //Future Function in postlogin
+                    postlogin.options(userInput, list); //Send to postlogin since user is logged in
                 }
-            } catch (Exception error)
+            } catch (Exception error) //User Error field
             {
                 System.out.println(SET_TEXT_COLOR_RED + "Error: " + error.getMessage() + RESET_TEXT_COLOR);
             }
         }
     }
 
-    public void loginSet(String username, String authToken)
+    public void login(String username, String authToken)
     {
-        this.loggedIn = true;
         this.postlogin = new Postlogin(server, this, username, authToken);
     }
 
-    public void logoutSet()
+    public void logout()
     {
-        this.loggedIn = false;
         this.postlogin = null;
     }
 
-    public boolean isLoggedIn()
+    private Boolean isLoggedIn() //Login Check
     {
-        return loggedIn;
+        return postlogin != null;
     }
 
-    private void printPrompt()
+    private void printPrompt() //separate prompt for active user/guest
     {
-        if (loggedIn && postlogin != null)
+        if (isLoggedIn())
         {
             System.out.print(SET_TEXT_COLOR_GREEN + "♜ {" + postlogin.getUsername() + "} ♙ -->" + RESET_TEXT_COLOR);
         }
