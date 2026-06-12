@@ -41,11 +41,7 @@ public class UserService
 
         UserData user = new UserData(req.username(), req.password(), req.email());
         userData.createUser(user);
-        String token = UUID.randomUUID().toString(); //Create randomized token
-        AuthData auth = new AuthData(token, req.username());
-        userData.createAuth(auth); //authToken
-
-        return new RegisterResult(req.username(), token);
+        return new RegisterResult(req.username(), makeAuth(req.username));
     }
 
     public LoginResult login(UserService.LoginRequest req) throws DataAccessException
@@ -64,11 +60,7 @@ public class UserService
             throw new UnauthorizedException("Error: unauthorized");
         }
 
-        String token = UUID.randomUUID().toString();
-        AuthData auth = new AuthData(token, req.username());
-        userData.createAuth(auth);
-
-        return new LoginResult(req.username(), token);
+        return new LoginResult(req.username(), makeAuth(req.username));
     }
 
     public void logout(String authToken) throws DataAccessException
@@ -80,6 +72,13 @@ public class UserService
         }
         //delete authToken
         userData.deleteAuth(authToken);
+    }
+
+    private String makeAuth(String username) throws DataAccessException
+    {
+        String token = UUID.randomUUID().toString();
+        userData.createAuth(new AuthData(token, username));
+        return token;
     }
 }
 

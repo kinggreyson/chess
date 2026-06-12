@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public interface PieceMovesCalculator {
     Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
-
     static Collection<ChessMove> slidingMoves(ChessBoard board, ChessPosition position, int[][] directions) {
         Collection<ChessMove> possibleMoves = new ArrayList<>();
+        ChessPiece spot = board.getPiece(position);
 
         for (int[] direction : directions) {
             int rowDir = direction[0];
@@ -14,12 +14,12 @@ public interface PieceMovesCalculator {
             int currentRow = position.getRow() + rowDir;
             int currentCol = position.getColumn() + colDir;
 
-            while (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
+            while (checkBounds(currentRow, currentCol)) {
                 ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
                 ChessPiece target = board.getPiece(newPosition);
 
                 if (target != null) {
-                    if (target.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    if (target.getTeamColor() != spot.getTeamColor()) {
                         possibleMoves.add(new ChessMove(position, newPosition, null));
                     }
                     break;
@@ -34,6 +34,7 @@ public interface PieceMovesCalculator {
 
     static Collection<ChessMove> singleStepMoves(ChessBoard board, ChessPosition position, int[][] directions) {
         Collection<ChessMove> possibleMoves = new ArrayList<>();
+        ChessPiece spot = board.getPiece(position);
 
         for (int[] direction : directions) {
             int rowDir = direction[0];
@@ -41,12 +42,13 @@ public interface PieceMovesCalculator {
             int currentRow = position.getRow() + rowDir;
             int currentCol = position.getColumn() + colDir;
 
-            if (currentRow >= 1 && currentRow <= 8 && currentCol >= 1 && currentCol <= 8) {
+            if (checkBounds(currentRow, currentCol))
+            {
                 ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
                 ChessPiece target = board.getPiece(newPosition);
 
                 if (target != null) {
-                    if (target.getTeamColor() != board.getPiece(position).getTeamColor()) {
+                    if (target.getTeamColor() != spot.getTeamColor()) {
                         possibleMoves.add(new ChessMove(position, newPosition, null));
                     }
                 } else {
@@ -55,6 +57,11 @@ public interface PieceMovesCalculator {
             }
         }
         return possibleMoves;
+    }
+
+    static Boolean checkBounds(int row, int col)
+    {
+        return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 }
 

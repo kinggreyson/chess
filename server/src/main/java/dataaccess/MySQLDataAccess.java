@@ -108,19 +108,8 @@ public class MySQLDataAccess implements DataAccess {
     @Override
     public void createAuth(AuthData auth) throws DataAccessException
     {
-        update("INSERT INTO auth (authToken, username) VALUES (?, ?)", auth, username());
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        try (var connection = DatabaseManager.getConnection();
-             var state = connection.prepareStatement(statement))
-        {
-            state.setString(1, auth.authToken());
-            state.setString(2, auth.username());
-            state.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            throw new DataAccessException("Unable to create auth" + e.getMessage());
-        }
+        update("INSERT INTO auth (authToken, username) VALUES (?, ?)",
+                auth.authToken(), auth.username());
     }
 
     @Override
@@ -142,7 +131,7 @@ public class MySQLDataAccess implements DataAccess {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        update("DELETE FROM auth WHERE authToken = ?");
+        update("DELETE FROM auth WHERE authToken = ?", authToken);
     }
 
     //Games
@@ -206,18 +195,10 @@ public class MySQLDataAccess implements DataAccess {
     public void updateGame(GameData game) throws DataAccessException {
         var statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ?, gameOver = ? WHERE gameID = ?";
         String gameJson = gson.toJson(game.game());
-        try (var connection = DatabaseManager.getConnection();
-             var state = connection.prepareStatement(statement)) {
-            state.setString(1, game.whiteUsername());
-            state.setString(2, game.blackUsername());
-            state.setString(3, game.gameName());
-            state.setString(4, gameJson);
-            state.setBoolean(5, game.gameOver());
-            state.setInt(6, game.gameID());
-            state.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to update game: " + e.getMessage());
-        }
+       update("UPDATE games SET whiteUsername = ?, blackUsername = ?, " +
+               "gameName = ?, game = ?, gameOver = ? WHERE gameID = ?",
+               game.whiteUsername(), game.blackUsername(), game.gameName(),
+               gson.toJson(game.game()), game.gameOver(), game.gameID());
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
@@ -250,7 +231,11 @@ public class MySQLDataAccess implements DataAccess {
     {
         for (int i = 0; i < parameter.length; i++)
         {
-            if (parameter[i] instanceof String string) //Check if String
+            if (parameter[i] == null) //Null Check
+            {
+                state.setNull(i+1, 0);
+            }
+            else if (parameter[i] instanceof String string) //Check if String
             {
                 state.setString(i+1, string);
             }
