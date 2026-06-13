@@ -41,11 +41,13 @@ public class ChessGame {
         this.turn = TeamColor.WHITE;
     }
 
-    public TeamColor getTeamTurn() {
+    public TeamColor getTeamTurn()
+    {
         return turn;
     }
 
-    public void setTeamTurn(TeamColor team) {
+    public void setTeamTurn(TeamColor team)
+    {
         this.turn = team;
     }
 

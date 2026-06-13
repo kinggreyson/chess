@@ -10,7 +10,7 @@ import service.ClearService;
 import service.UserService;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import websocket.GamePoints;
 
 public class Server {
 
@@ -18,6 +18,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final ClearService clearService;
+    private final GamePoints gamePoints;
     private final Gson gson = new Gson();
 
 
@@ -28,6 +29,7 @@ public class Server {
             userService = new UserService(dataAccess);
             gameService = new GameService(dataAccess);
             clearService = new ClearService(dataAccess);
+            gamePoints = new GamePoints(dataAccess);
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initialize database: " + e.getMessage());
         }
@@ -46,6 +48,13 @@ public class Server {
         javalin.get("/game", this::listGames);
         javalin.post("/game", this::createGame);
         javalin.put("/game", this::joinGame);
+        //Websocket Endpoints
+        javalin.ws("/ws", ws -> {
+            ws.onMessage(gamePoints :: messageDirect);
+            ws.onClose(gamePoints :: closeDirect);
+            ws.onError(gamePoints :: disconnectDirect);
+        });
+
 
         //Exceptions
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
@@ -84,53 +93,52 @@ public class Server {
         ctx.json("{}");
     }
 
-    private void register(Context ctx) throws DataAccessException
+    private void register(Context x) throws DataAccessException
     {
-        UserService.RegisterRequest request = gson.fromJson(ctx.body(), UserService.RegisterRequest.class);
+        UserService.RegisterRequest request = gson.fromJson(x.body(), UserService.RegisterRequest.class);
         UserService.RegisterResult result = userService.register(request);
-        ctx.status(200);
-        ctx.json(result);
+        x.status(200);
+        x.json(result);
     }
 
-    private void login(Context ctx) throws DataAccessException
+    private void login(Context x) throws DataAccessException
     {
-        UserService.LoginRequest request = gson.fromJson(ctx.body(), UserService.LoginRequest.class);
+        UserService.LoginRequest request = gson.fromJson(x.body(), UserService.LoginRequest.class);
         UserService.LoginResult result = userService.login(request);
-        ctx.status(200);
-        ctx.json(result);
+        x.status(200);
+        x.json(result);
     }
 
-    private void logout(Context ctx) throws DataAccessException
+    private void logout(Context x) throws DataAccessException
     {
-        String authToken = ctx.header("authorization");
+        String authToken = x.header("authorization");
         userService.logout(authToken);
-        ctx.status(200);
-        ctx.json("{}");
+        x.status(200);
+        x.json("{}");
     }
 
-    private void listGames(Context ctx) throws DataAccessException
+    private void listGames(Context x) throws DataAccessException
     {
-        String authToken = ctx.header("authorization");
+        String authToken = x.header("authorization");
         List<GameData> games = gameService.listGames(authToken);
-        ctx.status(200);
-        ctx.json(Map.of("games", games));
+        x.status(200);
+        x.json(Map.of("games", games));
     }
 
-    private void createGame(Context ctx) throws DataAccessException
-    {
-        String authToken = ctx.header("authorization");
-        GameService.CreateGameRequest request = gson.fromJson(ctx.body(), GameService.CreateGameRequest.class);
+    private void createGame(Context x) throws DataAccessException {
+        String authToken = x.header("authorization");
+        GameService.CreateGameRequest request = gson.fromJson(x.body(), GameService.CreateGameRequest.class);
         GameService.CreateGameResult result = gameService.createGame(new GameService.CreateGameRequest(authToken, request.gameName()));
-        ctx.status(200);
-        ctx.json(result);
+        x.status(200);
+        x.json(result);
     }
 
-    private void joinGame(Context ctx) throws DataAccessException
+    private void joinGame(Context x) throws DataAccessException
     {
-        String authToken = ctx.header("authorization");
-        GameService.JoinGameRequest request = gson.fromJson(ctx.body(), GameService.JoinGameRequest.class);
+        String authToken = x.header("authorization");
+        GameService.JoinGameRequest request = gson.fromJson(x.body(), GameService.JoinGameRequest.class);
         gameService.joinGame(new GameService.JoinGameRequest(authToken, request.playerColor(), request.gameID()));
-        ctx.status(200);
-        ctx.json("{}");
+        x.status(200);
+        x.json("{}");
     }
 }
