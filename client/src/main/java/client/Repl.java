@@ -7,7 +7,7 @@ public class Repl {
     private final ServerFacade server;
     private final Prelogin prelogin;
     private Postlogin postlogin;
-    private boolean loggedIn = false;
+    private Game game;
 
     public Repl(int port)
     {
@@ -34,19 +34,21 @@ public class Repl {
 
             try
             {
-                if (!isLoggedIn())
+                if(inGame())
                 {
-                    if(userInput.equals("quit"))
-                    {
-                        System.out.println(SET_TEXT_COLOR_GREEN + "♗ Thanks for playing! ♞");
-                        break;
-                    }
-                    prelogin.options(userInput, list); //Send to prelogin since user is not logged in
-
+                    game.route(userInput, list);
+                }
+                else if(isLoggedIn())
+                {
+                    postlogin.options(userInput, list); //Send to postlogin since user is logged in
                 }
                 else
                 {
-                    postlogin.options(userInput, list); //Send to postlogin since user is logged in
+                    if (userInput.equals("quit"))
+                    {
+                        break;
+                    }
+                    prelogin.options(userInput, list);
                 }
             } catch (Exception error) //User Error field
             {
@@ -65,14 +67,33 @@ public class Repl {
         this.postlogin = null;
     }
 
-    private Boolean isLoggedIn() //Login Check
+    private boolean inGame()
+    {
+        return game != null;
+    }
+
+    private boolean isLoggedIn() //Login Check
     {
         return postlogin != null;
     }
 
+    public void leaveGame()
+    {
+        this.game = null;
+    }
+
+    public void startGame(Game game) {
+        this.game = game;
+    }
+
+
     private void printPrompt() //separate prompt for active user/guest
     {
-        if (isLoggedIn())
+        if (inGame())
+        {
+            System.out.print(SET_TEXT_COLOR_GREEN + "♜ {" + postlogin.getUsername() + "} ♙ -->" + RESET_TEXT_COLOR);
+        }
+        else if (isLoggedIn())
         {
             System.out.print(SET_TEXT_COLOR_GREEN + "♜ {" + postlogin.getUsername() + "} ♙ -->" + RESET_TEXT_COLOR);
         }
