@@ -34,7 +34,8 @@ public class GamePoints {
 
             if (route.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
             {
-                moveSet(x, route);
+                var moveCommand = gson.fromJson(x.message(), MakeMoveCommand.class);
+                moveSet(x, moveCommand);
             }
 
             else if (route.getCommandType() == UserGameCommand.CommandType.LEAVE)
@@ -66,6 +67,7 @@ public class GamePoints {
 
     public void closeDirect(WsCloseContext x)
     {
+        connection.clear(x);
         //Clean up unused games
     }
 
@@ -115,7 +117,7 @@ public class GamePoints {
         }
     }
 
-    private void moveSet(WsContext x, UserGameCommand command) throws DataAccessException, InvalidMoveException
+    private void moveSet(WsContext x, MakeMoveCommand command) throws DataAccessException, InvalidMoveException
     {
         int id = command.getGameID();
         String username = confirmAuthToken(x, command);
@@ -135,8 +137,7 @@ public class GamePoints {
             return;
         }
 
-        var move = (MakeMoveCommand) command;
-        ChessMove confMove = move.moveResult();
+        ChessMove confMove = command.moveResult();
         ChessGame chessgame = game.game();
 
         //Turn check setup
@@ -178,7 +179,7 @@ public class GamePoints {
         var load = new LoadGameMessage(gameMove);
         var sent = gson.toJson(load);
         connection.highlight(id, null, sent);
-        x.send(sent);
+        //x.send(sent);
 
         //Notify players/obeservers except the one who made the move
         var notification = new NotificationMessage(username + " Made a move");
@@ -207,7 +208,7 @@ public class GamePoints {
         }
 
         //Stalemate
-        if(chessgame.isInStalemate(ChessGame.TeamColor.WHITE)
+        else if(chessgame.isInStalemate(ChessGame.TeamColor.WHITE)
                 || chessgame.isInStalemate(ChessGame.TeamColor.BLACK))
         {
             var stalemateNotification = new NotificationMessage(username + " The game ends in a tie");
@@ -217,7 +218,7 @@ public class GamePoints {
         }
 
         //Check
-        if(chessgame.isInCheck(ChessGame.TeamColor.WHITE) || chessgame.isInCheck(ChessGame.TeamColor.BLACK))
+        else if(chessgame.isInCheck(ChessGame.TeamColor.WHITE) || chessgame.isInCheck(ChessGame.TeamColor.BLACK))
         {
             if(chessgame.isInCheck(ChessGame.TeamColor.WHITE))
             {

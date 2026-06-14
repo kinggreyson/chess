@@ -22,6 +22,7 @@ public class Connection
         //If player or observer joins
         public void join(String username, int gameID, WsContext current)
         {
+            conn.removeIf(item -> item.gameID == gameID && item.username.equals(username));
             conn.add(new Conn(username,gameID,current));
         }
 
@@ -57,6 +58,11 @@ public class Connection
                     item.current.send(send);
                 }
             }
+        }
+
+        public void clear(WsContext x)
+        {
+            conn.removeIf(item -> item.current.equals(x));
         }
 
     }
