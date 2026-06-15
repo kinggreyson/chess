@@ -21,22 +21,21 @@ public class WebsocketFacade {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.notificationMenu = notificationMenu;
         container.connectToServer(this, uri);
+        registerHandlers();
+    }
+
+    public void registerHandlers() {
+        open(null);
+        interpretMessage(null);
     }
 
     @OnOpen
-    @SuppressWarnings("unused")
     public void open(Session session)
     {
         this.session = session;
     }
 
     @OnMessage
-    @SuppressWarnings("unused")
-    public void recMessage(String message)
-    {
-        interpretMessage(message);
-    }
-
     public void interpretMessage(String message)
     {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
