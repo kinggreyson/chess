@@ -23,8 +23,19 @@ public class WebsocketFacade {
         container.connectToServer(this, uri);
     }
 
+    @OnOpen
+    public void open(Session session)
+    {
+        this.session = session;
+    }
+
     @OnMessage
     public void recMessage(String message)
+    {
+        interpretMessage(message);
+    }
+
+    public void interpretMessage(String message)
     {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         notificationMenu.notification(serverMessage);

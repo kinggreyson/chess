@@ -186,51 +186,57 @@ public class GamePoints {
         var send = gson.toJson(notification);
         connection.highlight(id, username, send);
 
-        //Checkmate
         GameData gameOver = new GameData(game.gameID(),game.whiteUsername(),
                 game.blackUsername(), game.gameName(), chessgame, true);
-        if(chessgame.isInCheckmate(ChessGame.TeamColor.WHITE) || chessgame.isInCheckmate(ChessGame.TeamColor.BLACK))
+        endGame(id, chessgame, game, gameOver, username);
+    }
+
+    private void endGame(int gameID, ChessGame chess, GameData game,
+                         GameData gameOver, String username) throws DataAccessException
+    {
+        //Checkmate
+        if(chess.isInCheckmate(ChessGame.TeamColor.WHITE) || chess.isInCheckmate(ChessGame.TeamColor.BLACK))
         {
-            if (chessgame.isInCheckmate(ChessGame.TeamColor.WHITE))
+            if (chess.isInCheckmate(ChessGame.TeamColor.WHITE))
             {
                 var checkmateNotification = new NotificationMessage(game.blackUsername() + " has won the game!");
                 var mate = gson.toJson(checkmateNotification);
-                connection.highlight(id, null, mate);
+                connection.highlight(gameID, null, mate);
             }
-            else if(chessgame.isInCheckmate(ChessGame.TeamColor.BLACK))
+            else if(chess.isInCheckmate(ChessGame.TeamColor.BLACK))
             {
                 var checkmateNotification = new NotificationMessage(game.whiteUsername() + " has won the game!");
                 var mate = gson.toJson(checkmateNotification);
-                connection.highlight(id, null, mate);
+                connection.highlight(gameID, null, mate);
             }
 
             dataAccess.updateGame(gameOver);
         }
 
         //Stalemate
-        else if(chessgame.isInStalemate(ChessGame.TeamColor.WHITE)
-                || chessgame.isInStalemate(ChessGame.TeamColor.BLACK))
+        else if(chess.isInStalemate(ChessGame.TeamColor.WHITE)
+                || chess.isInStalemate(ChessGame.TeamColor.BLACK))
         {
             var stalemateNotification = new NotificationMessage(username + " The game ends in a tie");
             var stale = gson.toJson(stalemateNotification);
-            connection.highlight(id, null, stale);
+            connection.highlight(gameID, null, stale);
             dataAccess.updateGame(gameOver);
         }
 
         //Check
-        else if(chessgame.isInCheck(ChessGame.TeamColor.WHITE) || chessgame.isInCheck(ChessGame.TeamColor.BLACK))
+        else if(chess.isInCheck(ChessGame.TeamColor.WHITE) || chess.isInCheck(ChessGame.TeamColor.BLACK))
         {
-            if(chessgame.isInCheck(ChessGame.TeamColor.WHITE))
+            if(chess.isInCheck(ChessGame.TeamColor.WHITE))
             {
                 var checkNotification = new NotificationMessage(username + " (White) in check");
                 var check = gson.toJson(checkNotification);
-                connection.highlight(id, null, check);
+                connection.highlight(gameID, null, check);
             }
-            if(chessgame.isInCheck(ChessGame.TeamColor.BLACK))
+            if(chess.isInCheck(ChessGame.TeamColor.BLACK))
             {
                 var checkNotification = new NotificationMessage(username + " (Black) in check");
                 var check = gson.toJson(checkNotification);
-                connection.highlight(id, null, check);
+                connection.highlight(gameID, null, check);
             }
         }
     }
