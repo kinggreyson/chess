@@ -25,6 +25,18 @@ public class GamePoints {
         this.dataAccess = dataAccess;
     }
 
+    private static class Authenticate
+    {
+        String username;
+        GameData game;
+        Authenticate(String username, GameData game)
+        {
+            this.username = username;
+            this.game = game;
+        }
+
+    }
+
     //Link all the functions together
     public void messageDirect(WsMessageContext x)
     {
@@ -78,75 +90,64 @@ public class GamePoints {
 
     private void connectSet(WsContext x, UserGameCommand command) throws DataAccessException
     {
-        int id = command.getGameID();
-        String username = confirmAuthToken(x, command);
-        if (username == null)
-        {
-            return;
-        }
-        GameData game = confirmGameId(x, command);
-        if(game == null)
-        {
-            return;
-        }
-        connection.join(username, id, x);
+       Authenticate token = check(x, command);
+       if (token == null)
+       {
+           return;
+       }
+       int id = command.getGameID();
+        connection.join(token.username, id, x);
 
-        var load = new LoadGameMessage(game);
+        var load = new LoadGameMessage(token.game);
         var sent = gson.toJson(load);
         x.send(sent);
 
         //notify of roles
-        if(username.equals(game.whiteUsername()))
+        if(token.username.equals(token.game.whiteUsername()))
         {
-            var notification = new NotificationMessage(username + " Is in at White");
+            var notification = new NotificationMessage(token.username + " Is in at White");
             var send = gson.toJson(notification);
-            connection.highlight(id, username, send);
+            connection.highlight(id, token.username, send);
 
         }
-        else if(username.equals(game.blackUsername()))
+        else if(token.username.equals(token.game.blackUsername()))
         {
-            var notification = new NotificationMessage(username + " Is in at Black");
+            var notification = new NotificationMessage(token.username + " Is in at Black");
             var send = gson.toJson(notification);
-            connection.highlight(id, username, send);
+            connection.highlight(id, token.username, send);
         }
         else
         {
-            var notification = new NotificationMessage(username + " Is watching");
+            var notification = new NotificationMessage(token.username + " Is watching");
             var send = gson.toJson(notification);
-            connection.highlight(id, username, send);
+            connection.highlight(id, token.username, send);
         }
     }
 
     private void moveSet(WsContext x, MakeMoveCommand command) throws DataAccessException, InvalidMoveException
     {
+        Authenticate token = check(x, command);
+        if (token == null)
+        {
+            return;
+        }
         int id = command.getGameID();
-        String username = confirmAuthToken(x, command);
-        if (username == null)
-        {
-            return;
-        }
-
-        GameData game = confirmGameId(x, command);
-        if (game == null)
-        {
-            return;
-        }
-        if(game.gameOver())
+        if(token.game.gameOver())
         {
             errorSet(x, "Error: Game already over");
             return;
         }
 
         ChessMove confMove = command.moveResult();
-        ChessGame chessgame = game.game();
+        ChessGame chessgame = token.game.game();
 
         //Turn check setup
         ChessGame.TeamColor color;
-        if(username.equals(game.whiteUsername()))
+        if(token.username.equals(token.game.whiteUsername()))
         {
             color = ChessGame.TeamColor.WHITE;
         }
-        else if(username.equals(game.blackUsername()))
+        else if(token.username.equals(token.game.blackUsername()))
         {
             color = ChessGame.TeamColor.BLACK;
         }
@@ -171,24 +172,23 @@ public class GamePoints {
 
         //Update game
         chessgame.makeMove(confMove);
-        GameData gameMove = new GameData(game.gameID(),game.whiteUsername(),
-                game.blackUsername(), game.gameName(), chessgame, game.gameOver());
+        GameData gameMove = new GameData(token.game.gameID(),token.game.whiteUsername(),
+                token.game.blackUsername(), token.game.gameName(), chessgame, token.game.gameOver());
         dataAccess.updateGame(gameMove);
 
         //Update board
         var load = new LoadGameMessage(gameMove);
         var sent = gson.toJson(load);
         connection.highlight(id, null, sent);
-        //x.send(sent);
 
         //Notify players/obeservers except the one who made the move
-        var notification = new NotificationMessage(username + " Made a move");
+        var notification = new NotificationMessage(token.username + " Made a move");
         var send = gson.toJson(notification);
-        connection.highlight(id, username, send);
+        connection.highlight(id, token.username, send);
 
-        GameData gameOver = new GameData(game.gameID(),game.whiteUsername(),
-                game.blackUsername(), game.gameName(), chessgame, true);
-        endGame(id, chessgame, game, gameOver, username);
+        GameData gameOver = new GameData(token.game.gameID(),token.game.whiteUsername(),
+                token.game.blackUsername(), token.game.gameName(), chessgame, true);
+        endGame(id, chessgame, token.game, gameOver, token.username);
     }
 
     private void endGame(int gameID, ChessGame chess, GameData game,
@@ -350,5 +350,20 @@ public class GamePoints {
             return null;
         }
         return game;
+    }
+
+    private Authenticate check(WsContext x, UserGameCommand command) throws DataAccessException
+    {
+        String username = confirmAuthToken(x, command);
+        if (username == null)
+        {
+            return null;
+        }
+        GameData gameData = confirmGameId(x, command);
+        if (gameData == null)
+        {
+            return null;
+        }
+        return new Authenticate(username, gameData);
     }
 }
