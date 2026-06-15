@@ -5,6 +5,7 @@ import chess.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import static ui.EscapeSequences.*;
 
@@ -16,9 +17,12 @@ public class BoardDraw {
     private static final String BORDER  = SET_BG_COLOR_DARK_GREY;
 
     //Piece Colors
-    private static final String WHITE_PIECE = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
-    private static final String BLACK_PIECE = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
+    private static final String WHITE_PIECE = SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD;
+    private static final String BLACK_PIECE = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
 
+    //Highlight Colors
+    private static final String HIGHLIGHT_SQUARES = SET_BG_COLOR_GREEN;
+    private static final String HIGHLIGHT_START = SET_BG_COLOR_MAGENTA;
     //Setup Board
     public static void board(ChessBoard board, boolean isWhitePerspective)
     {
@@ -72,12 +76,12 @@ public class BoardDraw {
         build.append("   ").append(RESET_BG_COLOR).append("\n");
     }
 
-    private static void rowLabel(StringBuilder build, ChessBoard board, int row, boolean iswhite)
+    private static void rowLabel(StringBuilder build, ChessBoard board, int row, boolean isWhite)
     {
          build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
          for (int i = 0; i < 8; i++)
          {
-             int col = iswhite ? i + 1: 8 - i;
+             int col = isWhite ? i + 1: 8 - i;
              boolean isCream = ((row + col) & 1) != 0;
              String colour = isCream ? LIGHT_SQUARE : DARK_SQUARE;
              build.append(colour);
@@ -89,6 +93,56 @@ public class BoardDraw {
          }
         build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
          build.append(RESET_BG_COLOR).append("\n");
+    }
+
+
+    public static void highlightBoard(ChessBoard board, boolean white,
+                                      Collection<ChessMove> moves, ChessPosition area) {
+        StringBuilder build = new StringBuilder();
+        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
+        if (white) {
+            columnLabel(build, true);
+            for (int row = 8; row >= 1; row--) {
+                highlightRow(board, build, row, true, moves, area);
+            }
+            columnLabel(build, true);
+        } else {
+            columnLabel(build, false);
+            for (int row = 1; row <= 8; row++) {
+                highlightRow(board, build, row, false, moves, area);
+            }
+            columnLabel(build, false);
+        }
+        build.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
+        System.out.print(build);
+    }
+
+    private static void highlightRow(ChessBoard board, StringBuilder build, int row, boolean white, Collection<ChessMove> move, ChessPosition area)
+    {
+       build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
+        for (int i = 0; i < 8; i++) { //Same as row builder
+            int col = white ? i + 1 : 8 - i;
+            ChessPosition position = new ChessPosition(row, col);
+            //Square color here
+            String squareColor;
+            if (position.equals(area)) {
+                squareColor = HIGHLIGHT_START;
+            } else if (move != null && move.stream()
+                    .anyMatch(m -> m.getEndPosition().equals(position))) {
+                //Highlights all possible moves
+                squareColor = HIGHLIGHT_SQUARES;
+            } else {
+                //Keep squares the same color
+                boolean isCream = ((row + col) & 1) != 0;
+                squareColor = isCream ? LIGHT_SQUARE : DARK_SQUARE;
+            }
+            build.append(squareColor);
+
+            ChessPiece piece = board.getPiece(position);
+            build.append(pieceType(piece));
+        }
+        build.append(BORDER).append(SET_TEXT_COLOR_WHITE).append(" ").append(row).append(" ");
+        build.append(RESET_BG_COLOR).append("\n");
     }
 
     private static String pieceType(ChessPiece piece)

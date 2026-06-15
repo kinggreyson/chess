@@ -171,7 +171,24 @@ public class Game implements NotificationMenu {
 
     public void highlight(String[] factors)
     {
+        if (factors.length < 2)
+        {
+            System.out.println(SET_TEXT_COLOR_RED +
+                    "Error: type 'highlight <row/col>" );
+            return;
+        }
 
+        String highlightPos = factors[1];
+
+        String highlightCol = String.valueOf(highlightPos.charAt(0));
+        String highlightRow = String.valueOf(highlightPos.charAt(1));
+
+        ChessPosition highlightSquare = colRow(highlightCol, highlightRow);
+        var validMoves = game.validMoves(highlightSquare);
+
+        boolean colorSelect = color != ChessGame.TeamColor.BLACK;
+
+        ui.BoardDraw.highlightBoard(game.getBoard(), colorSelect, validMoves, highlightSquare);
     }
 
     private ChessPosition colRow(String colLetter, String rowNumber)
