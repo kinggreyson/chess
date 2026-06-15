@@ -77,16 +77,6 @@ public class Repl {
         return postlogin != null;
     }
 
-    /*public void leaveGame()
-    {
-        this.game = null;
-    }
-
-    public void startGame(Game game) {
-        this.game = game;
-    }*/
-
-
     private void printPrompt() //separate prompt for active user/guest
     {
         if (inGame())

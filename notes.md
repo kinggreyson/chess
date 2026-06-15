@@ -200,3 +200,14 @@ makeMove updates the state of the board depending on the move along with pawn pr
 Phase 5:
 var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
 System.out.println("♕ 240 Chess Client: " + piece);
+
+Phase 6:
+Potentially needed code
+/*public void leaveGame()
+{
+this.game = null;
+}
+
+    public void startGame(Game game) {
+        this.game = game;
+    }*/

@@ -24,12 +24,14 @@ public class WebsocketFacade {
     }
 
     @OnOpen
+    @SuppressWarnings("unused")
     public void open(Session session)
     {
         this.session = session;
     }
 
     @OnMessage
+    @SuppressWarnings("unused")
     public void recMessage(String message)
     {
         interpretMessage(message);
