@@ -1,6 +1,7 @@
 package client;
 
-import chess.ChessBoard;
+
+import chess.ChessGame;
 import model.GameData;
 
 import static ui.EscapeSequences.*;
@@ -10,13 +11,15 @@ public class Postlogin {
     private final Repl repl;
     private final String username;
     private final String authToken;
+    private final String url;
     private GameData[] games;
 
-    public Postlogin(ServerFacade server, Repl repl, String username, String authToken) {
+    public Postlogin(ServerFacade server, Repl repl, String username, String authToken, String url) {
         this.server = server;
         this.repl = repl;
         this.username = username;
         this.authToken = authToken;
+        this.url = url;
     }
 
     public String getUsername()
@@ -125,8 +128,9 @@ public class Postlogin {
             GameData game = games[i];
             String white = game.whiteUsername() != null ? game.whiteUsername() : "Available";
             String black = game.blackUsername() != null ? game.blackUsername() : "Available";
+            String gameOver = game.gameOver() ? SET_TEXT_COLOR_RED + " [GAME OVER]" : "";
             System.out.println(SET_TEXT_COLOR_WHITE + "  " + (i + 1) + ". " + game.gameName()
-                    + SET_TEXT_COLOR_LIGHT_GREY + " | [White: " + white + " | Black: " + black + "]"
+                    + SET_TEXT_COLOR_LIGHT_GREY + " | [White: " + white + " | Black: " + black + "]" + gameOver
                     + RESET_TEXT_COLOR);
         }
 
@@ -170,10 +174,9 @@ public class Postlogin {
         server.joinGame(authToken, game.gameID(), color);
         System.out.println(SET_TEXT_COLOR_GREEN + "Joined as " + color + RESET_TEXT_COLOR);
 
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        boolean isWhite = color.equals("WHITE");
-        ui.BoardDraw.board(board, isWhite);
+        ChessGame.TeamColor teamColor = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        Game gameStart = new Game(authToken, game.gameID(), username, teamColor, url, repl);
+        repl.startGame(gameStart);
     }
 
     private void observeGame(String[] tokens) throws Exception {
@@ -200,8 +203,7 @@ public class Postlogin {
         }
 
         System.out.println(SET_TEXT_COLOR_GREEN + "Watching Game " + gameNumber + RESET_TEXT_COLOR);
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        ui.BoardDraw.board(board, true);
+        Game gameStart = new Game(authToken, games[gameNumber - 1].gameID(), username, ChessGame.TeamColor.WHITE, url, repl);
+        repl.startGame(gameStart);
     }
 }

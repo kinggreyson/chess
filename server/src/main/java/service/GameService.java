@@ -68,6 +68,10 @@ public class GameService {
         {
             throw new BadRequestException("Error: bad request");
         }
+        if (game.gameOver())
+        {
+            throw new BadRequestException("Error: game is already over");
+        }
 
         //403 Check - Color already taken
         if(request.playerColor().equals("WHITE") && game.whiteUsername() != null)

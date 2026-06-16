@@ -1,10 +1,14 @@
 package client;
 
 import chess.ChessMove;
+import model.GameData;
 import com.google.gson.Gson;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ErrorMessage;
 import jakarta.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -21,13 +25,8 @@ public class WebsocketFacade {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.notificationMenu = notificationMenu;
         container.connectToServer(this, uri);
-        registerHandlers();
     }
 
-    public void registerHandlers() {
-        open(null);
-        interpretMessage(null);
-    }
 
     @OnOpen
     public void open(Session session)
@@ -35,11 +34,38 @@ public class WebsocketFacade {
         this.session = session;
     }
 
+    @OnClose
+    public void onClose(Session session, CloseReason reason)
+    {
+        System.out.println("WebSocket closed: " + reason.getReasonPhrase());
+    }
+
     @OnMessage
     public void interpretMessage(String message)
     {
-        ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-        notificationMenu.notification(serverMessage);
+        if (message == null) { return; }
+
+        ServerMessage base = gson.fromJson(message, ServerMessage.class);
+        if (base == null) { return; }
+
+        switch (base.getServerMessageType())
+        {
+            case LOAD_GAME -> {
+                var obj = gson.fromJson(message, com.google.gson.JsonObject.class);
+                GameData game = gson.fromJson(obj.get("game"), GameData.class);
+                notificationMenu.notification(new LoadGameMessage(game));
+            }
+            case NOTIFICATION -> {
+                var obj = gson.fromJson(message, com.google.gson.JsonObject.class);
+                String msg = obj.get("message").getAsString();
+                notificationMenu.notification(new NotificationMessage(msg));
+            }
+            case ERROR -> {
+                var obj = gson.fromJson(message, com.google.gson.JsonObject.class);
+                String err = obj.get("errorMessage").getAsString();
+                notificationMenu.notification(new ErrorMessage(err));
+            }
+        }
     }
 
     public void connect(String authToken, int gameID) throws IOException
@@ -69,6 +95,11 @@ public class WebsocketFacade {
 
     private void send(String message) throws IOException
     {
+        if (session == null || !session.isOpen())
+        {
+            System.out.println("Session is closed or null");
+            return;
+        }
         session.getBasicRemote().sendText(message);
     }
 }

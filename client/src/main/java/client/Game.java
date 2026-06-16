@@ -18,17 +18,20 @@ public class Game implements NotificationMenu {
     private final String username;
     private final ChessGame.TeamColor color;
     private ChessGame game;
+    private final Repl repl;
     private final Gson gson = new Gson();
 
-    public Game(String authToken, int gameID, String username, ChessGame.TeamColor color, String url) throws Exception
+    public Game(String authToken, int gameID, String username, ChessGame.TeamColor color,
+                String url, Repl repl) throws Exception
     {
         this.websocketFacade = new WebsocketFacade(url, this);
         this.authToken = authToken;
         this.gameID = gameID;
         this.username = username;
         this.color = color;
+        this.repl = repl;
 
-        websocketFacade.connect(username, gameID);
+        websocketFacade.connect(authToken, gameID);
     }
 
     //SERVER NOTIFICATIONS
@@ -107,6 +110,11 @@ public class Game implements NotificationMenu {
 
     private void redraw()
     {
+        if (game == null)
+        {
+            System.out.println(SET_TEXT_COLOR_RED + "Game isn't loaded" + RESET_TEXT_COLOR);
+            return;
+        }
         boolean white = color != ChessGame.TeamColor.BLACK;
         ui.BoardDraw.board(game.getBoard(), white);
     }
@@ -114,6 +122,7 @@ public class Game implements NotificationMenu {
     private void leave() throws IOException
     {
         websocketFacade.leave(authToken, gameID);
+        repl.leaveGame();
     }
 
     private void move(String[] factors) throws IOException
@@ -196,13 +205,13 @@ public class Game implements NotificationMenu {
         int row;
         int col;
         //Convert letter input to number
-        if (colLetter.equals("a")) {col = 1;}
-        else if (colLetter.equals("b")) {col = 2;}
-        else if (colLetter.equals("c")) {col = 3;}
-        else if (colLetter.equals("d")) {col = 4;}
-        else if (colLetter.equals("e")) {col = 5;}
-        else if (colLetter.equals("f")) {col = 6;}
-        else if (colLetter.equals("g")) {col = 7;}
+        if (colLetter.equalsIgnoreCase("a")) {col = 1;}
+        else if (colLetter.equalsIgnoreCase("b")) {col = 2;}
+        else if (colLetter.equalsIgnoreCase("c")) {col = 3;}
+        else if (colLetter.equalsIgnoreCase("d")) {col = 4;}
+        else if (colLetter.equalsIgnoreCase("e")) {col = 5;}
+        else if (colLetter.equalsIgnoreCase("f")) {col = 6;}
+        else if (colLetter.equalsIgnoreCase("g")) {col = 7;}
         else {col = 8;}
         //convert number string to int
         if (rowNumber.equals("1")) {row = 1;}

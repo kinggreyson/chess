@@ -3,7 +3,7 @@ package websocket.messages;
 import model.GameData;
 
 public class ErrorMessage extends ServerMessage {
-    private final String errorMessage;
+    private String errorMessage;
 
     public ErrorMessage(String error)
     {

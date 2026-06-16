@@ -8,9 +8,11 @@ public class Repl {
     private final Prelogin prelogin;
     private Postlogin postlogin;
     private Game game;
+    private final String url;
 
     public Repl(int port)
     {
+        this.url = "http://localhost:" + port;
         this.server = new ServerFacade(port);
         this.prelogin = new Prelogin(server, this);
     }
@@ -59,7 +61,7 @@ public class Repl {
 
     public void login(String username, String authToken)
     {
-        this.postlogin = new Postlogin(server, this, username, authToken);
+        this.postlogin = new Postlogin(server, this, username, authToken, url);
     }
 
     public void logout()
@@ -75,6 +77,15 @@ public class Repl {
     private boolean isLoggedIn() //Login Check
     {
         return postlogin != null;
+    }
+
+    public void leaveGame()
+    {
+        this.game = null;
+    }
+
+    public void startGame(Game game) {
+        this.game = game;
     }
 
     private void printPrompt() //separate prompt for active user/guest

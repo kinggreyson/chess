@@ -36,6 +36,10 @@ public class Server {
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web");
             config.jsonMapper(new io.javalin.json.JavalinGson());
+            config.jetty.modifyWebSocketServletFactory(factory -> {
+                factory.setIdleTimeout(java.time.Duration.ofMinutes(30));
+                //Extended duration so websocket doesn't disconnect during game
+            });
         });
 
         // Register your endpoints and exception handlers here.

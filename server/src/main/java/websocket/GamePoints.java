@@ -9,7 +9,6 @@ import dataaccess.DataAccessException;
 import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
-import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -41,13 +40,16 @@ public class GamePoints {
     public void messageDirect(WsMessageContext x)
     {
         //prevent crashing
+
         try {
             var route = gson.fromJson(x.message(), UserGameCommand.class);
 
             if (route.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE)
             {
-                var moveCommand = gson.fromJson(x.message(), MakeMoveCommand.class);
-                moveSet(x, moveCommand);
+                ChessMove move = new Gson().fromJson(
+                        gson.fromJson(x.message(), com.google.gson.JsonObject.class).get("move"),
+                        ChessMove.class);
+                moveSet(x, route, move);
             }
 
             else if (route.getCommandType() == UserGameCommand.CommandType.LEAVE)
@@ -75,6 +77,7 @@ public class GamePoints {
             errorSet(x, "error: " + error.getMessage());
         }
 
+
     }
 
     public void closeDirect(WsCloseContext x)
@@ -86,6 +89,7 @@ public class GamePoints {
     public void disconnectDirect(WsErrorContext x)
     {
         //Server endpoint
+        System.out.println("WebSocket error: " + x.error().getMessage());
     }
 
     private void connectSet(WsContext x, UserGameCommand command) throws DataAccessException
@@ -124,7 +128,7 @@ public class GamePoints {
         }
     }
 
-    private void moveSet(WsContext x, MakeMoveCommand command) throws DataAccessException, InvalidMoveException
+    private void moveSet(WsContext x, UserGameCommand command, ChessMove move) throws DataAccessException, InvalidMoveException
     {
         Authenticate token = check(x, command);
         if (token == null)
@@ -138,7 +142,7 @@ public class GamePoints {
             return;
         }
 
-        ChessMove confMove = command.moveResult();
+        ChessMove confMove = move;
         ChessGame chessgame = token.game.game();
 
         //Turn check setup
